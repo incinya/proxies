@@ -1,12 +1,14 @@
 import time
 import redis
 
+from memory.conf import *
+
 
 class RedisMem:
-    db = 2
-    password = 123456
-    host = '10.168.1.245'
-    port = 6379
+    db = DB
+    password = PASSWORD
+    host = HOST
+    port = PORT
     pool = redis.ConnectionPool(host=host, port=port, decode_responses=True, password=password, db=db)
     r = redis.Redis(connection_pool=pool)
 
@@ -36,9 +38,12 @@ class RedisMem:
 
 
 class ExpSet(RedisMem):
-    def __init__(self, key, level=''):
+    def __init__(self, set_name: str, level=''):
+        """
+        :param set_name: set_name 
+        """
         super(ExpSet, self).__init__(level=level)
-        self.key = self.level + key
+        self.key = self.level + set_name
         self.exp = None
 
     def set_item(self, elems: set):
@@ -48,8 +53,10 @@ class ExpSet(RedisMem):
     def flush(self, exp):
         self.r.zremrangebyscore(self.key, 0, time.time() - exp)
 
+    def get_random(self):
+        ...
+
 
 if __name__ == '__main__':
     # r = RedisMem()
-    e = ExpSet(key='alice', level='fxh:')
-
+    e = ExpSet(set_name='alice', level='fxh:')
