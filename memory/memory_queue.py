@@ -36,6 +36,10 @@ class RedisMem:
         if ex:
             self.r.expire(key, ex)
 
+    def get(self, key):
+        key = self.level + key
+        return self.r.get(key)
+
 
 class ExpSet(RedisMem):
     def __init__(self, set_name: str, level=''):
@@ -49,6 +53,9 @@ class ExpSet(RedisMem):
     def set_item(self, elems: set):
         for item in elems:
             self.r.zadd(self.key, {item: time.time()})
+
+    def get(self, key):
+        ...
 
     def flush(self, exp):
         self.r.zremrangebyscore(self.key, 0, time.time() - exp)
