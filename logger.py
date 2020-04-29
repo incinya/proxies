@@ -3,18 +3,18 @@ import os
 import time
 
 
-def logger():
+def logger(path='', encoding='utf-8'):
     logging.basicConfig(level=logging.NOTSET)  # 设置日志级别
     # 第一步，创建一个logger
     _logger = logging.getLogger()
     _logger.setLevel(logging.NOTSET)  # Log等级总开关
 
     # 第二步，创建一个handler，用于写入日志文件
-    rq = time.strftime('%Y%m%d%H%M', time.localtime(time.time()))
+    rq = time.strftime('%Y-%m-%d', time.localtime(time.time()))
 
-    log_path = os.getcwd()
+    log_path = os.getcwd() + path
     logfile = os.path.join(log_path, rq + '.log')
-    fh = logging.FileHandler(logfile, mode='a')
+    fh = logging.FileHandler(logfile, mode='a', encoding=encoding)
     fh.setLevel(logging.DEBUG)  # 输出到file的log等级的开关
     # 第三步，定义handler的输出格式
     formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
@@ -22,5 +22,7 @@ def logger():
     # 第四步，将logger添加到handler里面
     _logger.addHandler(fh)
 
-    logging.debug('hello world')
     return logging
+
+
+log = logger(encoding='utf-8')

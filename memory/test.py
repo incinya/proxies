@@ -1,8 +1,11 @@
 import asyncio
 import time
 from unittest import TestCase
-
+import aiohttp
 import requests
+
+from logger import logger, log
+from memory.memory_queue import ExpSet
 
 
 class ProxyTest(TestCase):
@@ -140,17 +143,22 @@ class ProxyTest(TestCase):
         # 使用同步方式编写异步功能
         import time
         import asyncio
+        async def f2():
+            await asyncio.wait_for(asyncio.coroutine(time.sleep)(5), 10)
+
+        async def f1():
+            await f2()
 
         async def taskIO_1():
             print('开始运行IO任务1...')
-            await asyncio.sleep(2)  # 假设该任务耗时2s
-            print('IO任务1已完成，耗时2s')
+            await f1()
+            print('IO任务1已完成')
             return taskIO_1.__name__
 
         async def taskIO_2():
             print('开始运行IO任务2...')
-            await asyncio.sleep(3)  # 假设该任务耗时3s
-            print('IO任务2已完成，耗时3s')
+            await asyncio.sleep(5)
+            print('IO任务2已完成')
             return taskIO_2.__name__
 
         async def main():  # 调用方
@@ -166,3 +174,79 @@ class ProxyTest(TestCase):
         finally:
             loop.close()  # 结束事件循环
         print('所有IO任务总耗时%.5f秒' % float(time.time() - start))
+
+    def test_async_connection(self):
+        from lxml import etree
+        urls = [
+            'https://aaai.org/ocs/index.php/AAAI/AAAI18/paper/viewPaper/16488',
+            'https://aaai.org/ocs/index.php/AAAI/AAAI18/paper/viewPaper/16583',
+            # 省略后面8个url...
+        ]
+        titles = []
+        sem = asyncio.Semaphore(10)  # 信号量，控制协程数，防止爬的过快
+        '''
+        提交请求获取AAAI网页,并解析HTML获取title
+        '''
+        log = logger()
+
+        async def get_title(url):
+            async with sem:
+                # async with是异步上下文管理器
+                async with aiohttp.ClientSession() as session:  # 获取session
+                    async with session.request('GET', url) as resp:  # 提出请求
+                        # html_unicode = await resp.text()
+                        # html = bytes(bytearray(html_unicode, encoding='utf-8'))
+                        html = await resp.read()  # 可直接获取bytes
+                        title = etree.HTML(html).xpath('//*[@id="title"]/text()')
+                        log.debug(''.join(title))
+
+        def main():
+            loop = asyncio.get_event_loop()  # 获取事件循环
+            tasks = [get_title(url) for url in urls]  # 把所有任务放到一个列表中
+            loop.run_until_complete(asyncio.wait(tasks))  # 激活协程
+            loop.close()  # 关闭事件循环
+
+        start = time.time()
+        main()  # 调用方
+        log.debug('总耗时：%.5f秒' % float(time.time() - start))
+
+    def test_async_request(self):
+        sem = asyncio.Semaphore(10)  # 信号量，控制协程数，防止爬的过快
+
+        async def send_req(url, proxy=None):
+            async with sem:
+                print(url, proxy)
+                # async with是异步上下文管理器
+                async with aiohttp.ClientSession() as session:  # 获取session
+                    async with session.get(url, proxy=proxy) as resp:  # 提出请求
+                        html = await resp.read()  # 可直接获取bytes
+                        log.debug(html)
+
+        def get_tasks():
+            tasks = []
+            urls = ['121.40.66.129:808', '110.249.176.26:8060', '27.188.64.70:8060', '39.137.69.6:8080',
+                    '121.33.220.158:808', '124.200.36.118:40188', '123.57.84.116:8118', '218.21.96.128:58080',
+                    '58.61.154.153:8080', '117.94.213.119:8118', '124.239.216.14:8060', '106.15.126.137:8080',
+                    '218.58.194.162:8060', '171.35.50.18:8118', '121.40.162.239:808', '120.24.83.5:3128',
+                    '117.88.176.45:3000', '112.14.47.6:52024', '210.5.10.87:53281', '117.158.65.216:46697',
+                    '117.88.177.218:3000', '121.237.149.65:3000', '222.95.144.238:3000', '115.223.2.114:80',
+                    '124.156.98.172:80', '114.99.54.65:8118', '117.88.5.237:3000', '58.58.213.55:8888',
+                    '221.180.170.104:8080', '122.246.88.198:8118', '101.132.123.99:8080', '111.222.141.127:8118',
+                    '182.138.160.189:8118', '122.51.231.113:8080']
+            for url in urls:
+                proxies = 'http://' + url
+                func = send_req('http://httpbin.org/get', proxies)
+                tasks.append(func)
+            return tasks
+
+        def main():
+            loop = asyncio.get_event_loop()  # 获取事件循环
+
+            tasks = get_tasks()  # 把所有任务放到一个列表中
+
+            loop.run_until_complete(asyncio.wait(tasks))  # 激活协程
+            loop.close()  # 关闭事件循环
+
+        start = time.time()
+        main()  # 调用方
+        log.debug('总耗时：%.5f秒' % float(time.time() - start))

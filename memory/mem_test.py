@@ -1,7 +1,10 @@
 import time
 from unittest import TestCase
 
+from logger import logger
 from memory.memory_queue import ExpSet, RedisMem
+
+log = logger()
 
 
 class MemTst(TestCase):
@@ -12,7 +15,7 @@ class MemTst(TestCase):
         e = ExpSet(set_name='alice', level='fxh:')
         for i in range(1000, 0, -1):
             e.set_items({str(i)})
-            print(i)
+            log.debug('setItem'+str(i))
             time.sleep(0.5)
 
     def test_set_item(self):

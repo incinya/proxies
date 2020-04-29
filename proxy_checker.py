@@ -1,6 +1,4 @@
 import requests
-from requests import ConnectTimeout
-
 from logger import logger
 from memory.memory_queue import ExpSet
 
@@ -13,16 +11,17 @@ class ProxyChecker:
         self.e = ExpSet(set_name='poll', level='xici:')
 
     @staticmethod
-    def check_proxy(url):
+    async def check_proxy(url) -> bool:
         to = 'http://httpbin.org/get'
         proxies = {
             'http': 'http://' + url,
             'https': 'https://' + url,
         }
         try:
+            log.info('start connection to {}'.format(url))
             res = requests.get(to, proxies=proxies, timeout=time_out)
-        except ConnectTimeout:
-            log.debug('连接超时' + url)
+        except Exception as e:
+            log.debug('连接错误' + e.__str__())
             return False
         if url.split(':')[0] in res.text:
             return True
