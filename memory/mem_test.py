@@ -11,7 +11,7 @@ class MemTst(TestCase):
     def test_mock_zset(self):
         e = ExpSet(set_name='alice', level='fxh:')
         for i in range(1000, 0, -1):
-            e.set_item({str(i)})
+            e.set_items({str(i)})
             print(i)
             time.sleep(0.5)
 

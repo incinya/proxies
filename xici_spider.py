@@ -42,14 +42,13 @@ class XiciSpider:
 
     async def loop_get_list(self):
         mem = XiciSpider.mem
-        key = XiciSpider.key
         while True:
             XiciSpider.count += 1
             res = await self.get_1page_html(XiciSpider.count)
             for item in res:
-                mem.set_item(item)
+                mem.set(item)
                 print(item)
-            m = mem.get(XiciSpider.key)
+            m = mem.get()
             aa = 2
 
 

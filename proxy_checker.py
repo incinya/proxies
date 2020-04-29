@@ -29,7 +29,7 @@ class ProxyChecker:
         return False
 
     def mem_proxy(self, url):
-        self.e.set_item(url)
+        self.e.set_items(url)
 
     def check_and_mem_proxy(self, url):
         if self.check_proxy(url):

@@ -50,18 +50,19 @@ class ExpSet(RedisMem):
         self.key = self.level + set_name
         self.exp = None
 
-    def set_item(self, elems: set):
+    def set_items(self, elems: set):
         for item in elems:
             self.r.zadd(self.key, {item: time.time()})
 
-    def get(self, key):
-        ...
+    def set(self, elem, **kwargs):
+        self.r.zadd(self.key, {elem: time.time()})
 
     def flush(self, exp):
         self.r.zremrangebyscore(self.key, 0, time.time() - exp)
 
-    def get_random(self):
-        ...
+    def get_all(self):
+        return self.r.zrevrange(self.key, 0, -1)
+
 
 
 if __name__ == '__main__':
