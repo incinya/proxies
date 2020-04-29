@@ -11,7 +11,7 @@ class ProxyChecker:
         self.e = ExpSet(set_name='poll', level='xici:')
 
     @staticmethod
-    async def check_proxy(url) -> bool:
+    def check_proxy(url) -> bool:
         to = 'http://httpbin.org/get'
         proxies = {
             'http': 'http://' + url,

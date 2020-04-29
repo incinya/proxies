@@ -1,14 +1,11 @@
-import asyncio
+from threading import Thread
+from xici_spider import XiciProxyQueue
 
-from xici_spider import XiciSpider
 
-
-async def main():
-    p = XiciSpider()
-    tasks = [p.loop_set_list()]  # 打包任务
-    done, pending = await asyncio.wait(tasks)
+def main():
+    p = XiciProxyQueue()
+    Thread(target=p.loop_set_list).start()
 
 
 if __name__ == '__main__':
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(main())
+    main()
