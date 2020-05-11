@@ -33,7 +33,7 @@ class ProxyChecker:
         if self.check_proxy(url):
             self.mem_proxy(url)
             return True
-        log.debug('无效ip')
+        log.debug(('无效ip', url))
         return False
 
 
