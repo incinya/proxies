@@ -47,6 +47,6 @@ class CsvHelper:
 
 if __name__ == '__main__':
     c01 = CsvHelper()
-    c01.let_no_repeat('proxies1.csv')
-    c01.sort_csv('proxies1.csv')
-    c01.delete_row('a', 'proxies1.csv')
+    c01.let_no_repeat('proxies1.utils')
+    c01.sort_csv('proxies1.utils')
+    c01.delete_row('a', 'proxies1.utils')

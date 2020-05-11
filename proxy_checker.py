@@ -1,5 +1,5 @@
 import requests
-from logger import logger
+from utils.logger import log
 from memory.memory_queue import ExpSet
 
 time_out = 8

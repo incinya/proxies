@@ -1,10 +1,7 @@
 import time
 from unittest import TestCase
-
-from logger import logger
+from utils.logger import log
 from memory.memory_queue import ExpSet, RedisMem
-
-log = logger()
 
 
 class MemTst(TestCase):

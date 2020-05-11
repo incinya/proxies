@@ -1,8 +1,7 @@
 import time
 import redis
-
-from logger import log
 from memory.conf import *
+from utils.logger import log
 
 
 class RedisMem:
@@ -42,6 +41,9 @@ class RedisMem:
         key = self.level + key
         return self.r.get(key)
 
+    def delete(self, key):
+        self.r.delete(key)
+
 
 class ExpSet(RedisMem):
     def __init__(self, set_name: str, level=''):
@@ -63,11 +65,20 @@ class ExpSet(RedisMem):
 
     def flush(self, exp):
         res = self.r.zremrangebyscore(self.key, 0, time.time() - exp)
-        log.info(('flush', self.key, exp, res))
+        log.info(('flush', self.key, 'exp', exp, 'count', res))
         return res
 
     def get_all(self):
         return self.r.zrevrange(self.key, 0, -1)
+
+    def get_oldest(self):
+        return self.r.zrevrange(self.key, -1, -1)
+
+    def get_newest(self):
+        return self.r.zrevrange(self.key, 0, 0)
+
+    def delete(self, values):
+        self.r.zrem(self.key, values)
 
 
 if __name__ == '__main__':
