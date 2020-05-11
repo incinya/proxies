@@ -3,7 +3,6 @@ from utils.logger import log
 from memory.memory_queue import ExpSet
 
 time_out = 8
-log = logger()
 
 
 class ProxyChecker:
