@@ -50,7 +50,7 @@ class XiciEnQueue:
                 while size >= X.queue_size:
                     mem.flush(X.queue_exp)
                     size = len(mem.get_all())
-                    log.info(
+                    log.debug(
                         'queue_size over {},sleeping for poll_time {}'.format(X.queue_size,
                                                                               X.poll_heart_beat))
                     time.sleep(X.poll_heart_beat)
