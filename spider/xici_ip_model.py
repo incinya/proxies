@@ -7,7 +7,7 @@ from memory.redis_memory import RedisExpSet
 from utils.logger import log
 
 
-class XiciEnQueue:
+class XiciQueue:
     url = 'https://www.xicidaili.com/nn/{}.html'
     re_str = r'<td>(\d+.\d+.\d+.\d+)</td>.*?<td>(\d+)</td>'
     count = 0
@@ -34,14 +34,14 @@ class XiciEnQueue:
 
     @staticmethod
     def parse_html(html):
-        pattern = re.compile(XiciEnQueue.re_str, re.S)
+        pattern = re.compile(XiciQueue.re_str, re.S)
         result = pattern.findall(html)
         return [tup[0] + ':' + tup[1] for tup in result]
 
     def loop_en_queue(self):
-        mem = XiciEnQueue.mem_set
+        mem = XiciQueue.mem_set
         while True:
-            X = XiciEnQueue
+            X = XiciQueue
             X.count += 1
 
             res = self.get_1page_html(X.count)
@@ -58,11 +58,11 @@ class XiciEnQueue:
 
     @staticmethod
     def de_queue():
-        res = XiciEnQueue.mem_set.get_oldest()[0]
-        XiciEnQueue.mem_set.delete(res)
+        res = XiciQueue.mem_set.get_oldest()[0]
+        XiciQueue.mem_set.delete(res)
         return res
 
 
 if __name__ == "__main__":
-    x1 = XiciEnQueue()
+    x1 = XiciQueue()
     x1.loop_en_queue()
