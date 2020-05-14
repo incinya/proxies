@@ -1,10 +1,8 @@
 import re
 import time
 from threading import RLock
-
 import fake_useragent
 import requests
-
 from memory.redis_memory import RedisExpSet
 from utils.logger import log
 
@@ -42,22 +40,20 @@ class XiciQueue:
         return [tup[0] + ':' + tup[1] for tup in result]
 
     def loop_en_queue(self):
-        mem = XiciQueue.mem_set
+        X = XiciQueue
         while True:
-            X = XiciQueue
             X.count += 1
-
             res = self.get_1page_html(X.count)
             for item in res:
-                size = len(mem.get_all())
+                size = len( X.mem_set.get_all())
                 while size >= X.queue_size:
-                    mem.flush(X.queue_exp)
-                    size = len(mem.get_all())
+                    X.mem_set.flush(X.queue_exp)
+                    size = len(X.mem_set.get_all())
                     log.debug(
                         'queue_size over {},sleeping for poll_time {}'.format(X.queue_size,
                                                                               X.poll_heart_beat))
                     time.sleep(X.poll_heart_beat)
-                mem.set(item)
+                X.mem_set.set(item)
 
     @staticmethod
     def de_queue():
