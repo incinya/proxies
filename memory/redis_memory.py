@@ -65,7 +65,7 @@ class RedisExpSet(RedisMem):
 
     def flush(self, exp):
         res = self.r.zremrangebyscore(self.key, 0, time.time() - exp)
-        log.info(('flush', self.key, 'exp', exp, 'count', res))
+        log.info(('flush', self.key, 'exp', exp, 'remove count', res))
         return res
 
     def get_all(self):

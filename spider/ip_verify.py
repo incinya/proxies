@@ -1,8 +1,10 @@
 import asyncio
+import time
+from threading import Thread
 import aiohttp
-
 from spider.proxy_model import ProxyStack
 from spider.xici_ip_model import XiciQueue
+import requests
 from utils.logger import log
 
 
@@ -14,9 +16,6 @@ class AsyncSpider:
         self.stack = stack
 
     sem = 20
-    stack_size = 50
-    poll_time = 60
-    stack_exp = 10 * 60
     time_out = 10
 
     async def loop_send_req(self):
@@ -45,7 +44,56 @@ class AsyncSpider:
             loop.run_until_complete(asyncio.wait(tasks, timeout=AsyncSpider.time_out))  # 激活协程
 
 
+class ThreadSpider:
+    time_out = 8
+    poll_time = 10
+    sem = 10
+    start_task = 0
+    stop_task = 0
+    stack_size = 50
+
+    def __init__(self, queue, stack):
+        self.queue = queue
+        self.stack = stack
+
+    @staticmethod
+    def check_proxy(url) -> bool:
+        to = 'http://httpbin.org/get'
+        proxies = {
+            'http': 'http://' + url,
+            'https': 'https://' + url,
+        }
+        try:
+            log.info('start connection to {}'.format(url))
+            res = requests.get(to, proxies=proxies, timeout=ThreadSpider.time_out)
+        except Exception as e:
+            log.info('连接错误' + e.__str__())
+            return False
+        log.info(res.text)
+        if url.split(':')[0] in res.text:
+            return True
+        return False
+
+    def _main_loop(self):
+        try:
+            url = self.queue.de_queue()
+            if self.check_proxy(url):
+                self.stack.en_stack(url)
+                log.info(('en stack 1 url', url))
+            else:
+                log.info(('invalid url', url))
+        finally:
+            ThreadSpider.stop_task += 1
+
+    def main_loop(self):
+        while True:
+            while ThreadSpider.start_task - ThreadSpider.stop_task <= ThreadSpider.sem:
+                Thread(target=self._main_loop).start()
+                ThreadSpider.start_task += 1
+            else:
+                time.sleep(ThreadSpider.poll_time)
+
+
 if __name__ == "__main__":
     # DEBUG:root:b'{ "origin": "39.137.107.98", \n  "url": "http://httpbin.org/get"\n}\n'
-    x2 = AsyncSpider(XiciQueue, ProxyStack)
-    x2.main()
+    ThreadSpider(XiciQueue, ProxyStack).main_loop()

@@ -1,5 +1,7 @@
 import re
 import time
+from threading import RLock
+
 import fake_useragent
 import requests
 
@@ -16,6 +18,7 @@ class XiciQueue:
     queue_exp = 10 * 60
     queue_size = 100
     mem_set = RedisExpSet(key)
+    lock = RLock()
 
     def get_1page_html(self, page):
         url = self.url.format(page)
@@ -58,8 +61,12 @@ class XiciQueue:
 
     @staticmethod
     def de_queue():
-        res = XiciQueue.mem_set.get_oldest()[0]
-        XiciQueue.mem_set.delete(res)
+        XiciQueue.lock.acquire()
+        try:
+            res = XiciQueue.mem_set.get_oldest()[0]
+            XiciQueue.mem_set.delete(res)
+        finally:
+            XiciQueue.lock.release()
         return res
 
 
