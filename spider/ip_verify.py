@@ -50,7 +50,7 @@ class ThreadSpider:
     sem = 10
     start_task = 0
     stop_task = 0
-    stack_size = 50
+    stack_size = 40
 
     def __init__(self, queue, stack):
         self.queue = queue
@@ -87,10 +87,12 @@ class ThreadSpider:
 
     def main_loop(self):
         while True:
-            while ThreadSpider.start_task - ThreadSpider.stop_task <= ThreadSpider.sem:
+            while ThreadSpider.start_task - ThreadSpider.stop_task <= ThreadSpider.sem and self.stack.get_size() < self.stack.get_size():
                 Thread(target=self._main_loop).start()
                 ThreadSpider.start_task += 1
             else:
+                log.info(('线程池容量', ThreadSpider.sem))
+                log.info(('堆栈量', self.stack.get_size()))
                 time.sleep(ThreadSpider.poll_time)
 
 

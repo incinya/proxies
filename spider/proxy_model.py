@@ -12,3 +12,7 @@ class ProxyStack:
     @staticmethod
     def de_stack():
         return ProxyStack.mem_set.get_newest()
+
+    @staticmethod
+    def get_size():
+        return ProxyStack.mem_set.get_size()

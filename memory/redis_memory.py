@@ -12,15 +12,15 @@ class RedisMem:
     pool = redis.ConnectionPool(host=host, port=port, decode_responses=True, password=password, db=db)
     r = redis.Redis(connection_pool=pool)
 
-    def __init__(self, level=''):
-        self.level = level
+    def __init__(self, floor=''):
+        self.floor = floor
 
     def set(self, key, val, ex=None, remove_exist=False):
         """
         remove  False旧的不会被删除
         ex      过期时间(秒)
         """
-        key = self.level + key
+        key = self.floor + key
         if remove_exist:
             self.r.delete(key)
 
@@ -38,7 +38,7 @@ class RedisMem:
         log.info(('set', key, val, ex))
 
     def get(self, key):
-        key = self.level + key
+        key = self.floor + key
         return self.r.get(key)
 
     def delete(self, key):
@@ -50,8 +50,8 @@ class RedisExpSet(RedisMem):
         """
         :param set_name: set_name 
         """
-        super(RedisExpSet, self).__init__(level=level)
-        self.key = self.level + set_name
+        super(RedisExpSet, self).__init__(floor=level)
+        self.key = self.floor + set_name
         self.exp = None
 
     def set_items(self, elems: set):
@@ -80,6 +80,8 @@ class RedisExpSet(RedisMem):
     def delete(self, values):
         self.r.zrem(self.key, values)
 
+    def get_size(self):
+        return self.r.zcard(self.key)
 
 if __name__ == '__main__':
     # r = RedisMem()
