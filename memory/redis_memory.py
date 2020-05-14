@@ -83,6 +83,7 @@ class RedisExpSet(RedisMem):
     def get_size(self):
         return self.r.zcard(self.key)
 
+
 if __name__ == '__main__':
     # r = RedisMem()
     e = RedisExpSet(set_name='alice', level='fxh:')
