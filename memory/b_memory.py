@@ -1,4 +1,4 @@
-from memory.memory_queue import RedisExpSet
+from memory.redis_memory import RedisExpSet
 
 
 class BMemSet(RedisExpSet):

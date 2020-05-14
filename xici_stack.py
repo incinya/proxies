@@ -1,7 +1,7 @@
 import asyncio
 import aiohttp
+from memory.redis_memory import RedisExpSet
 from utils.logger import log
-from memory.memory_queue import RedisExpSet
 from xici_queue import XiciEnQueue
 
 

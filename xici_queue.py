@@ -2,7 +2,8 @@ import re
 import time
 import fake_useragent
 import requests
-from memory.memory_queue import RedisExpSet
+
+from memory.redis_memory import RedisExpSet
 from utils.logger import log
 
 

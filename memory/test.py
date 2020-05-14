@@ -31,7 +31,8 @@ class ProxyTest(TestCase):
         print(self.a)
         print(ProxyTest.a)
 
-    def test_asnic(self):
+    @staticmethod
+    def test_asnic():
         def f1():
             print(998)
             time.sleep(1)
@@ -186,7 +187,6 @@ class ProxyTest(TestCase):
         '''
         提交请求获取AAAI网页,并解析HTML获取title
         '''
-        log = logger()
 
         async def get_title(url):
             async with sem:
@@ -209,7 +209,8 @@ class ProxyTest(TestCase):
         main()  # 调用方
         log.debug('总耗时：%.5f秒' % float(time.time() - start))
 
-    def test_async_request(self):
+    @staticmethod
+    def test_async_request():
         sem = asyncio.Semaphore(10)  # 信号量，控制协程数，防止爬的过快
 
         async def send_req(url, proxy=None):

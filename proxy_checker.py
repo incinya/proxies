@@ -1,6 +1,7 @@
 import requests
+
+from memory.redis_memory import RedisExpSet
 from utils.logger import log
-from memory.memory_queue import RedisExpSet
 
 time_out = 8
 

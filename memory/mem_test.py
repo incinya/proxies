@@ -1,18 +1,15 @@
 import time
 from unittest import TestCase
+from memory.redis_memory import RedisExpSet, RedisMem
 from utils.logger import log
-from memory.memory_queue import RedisExpSet, RedisMem
 
 
 class MemTst(TestCase):
-    def setUp(self) -> None:
-        ...
-
     def test_mock_zset(self):
         e = RedisExpSet(set_name='alice', level='fxh:')
         for i in range(1000, 0, -1):
             e.set_items({str(i)})
-            log.debug('setItem'+str(i))
+            log.debug('setItem' + str(i))
             time.sleep(0.5)
 
     def test_set_item(self):
