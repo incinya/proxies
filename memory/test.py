@@ -4,7 +4,7 @@ from unittest import TestCase
 import aiohttp
 import requests
 from utils.logger import log
-from xici_stack import XiciProxyQueue
+from xici_stack import XiciEnQueue
 
 
 class ProxyTest(TestCase):
@@ -245,5 +245,5 @@ class ProxyTest(TestCase):
         log.debug('总耗时：%.5f秒' % float(time.time() - start))
 
     def test_en_queue(self):
-        x = XiciProxyQueue()
+        x = XiciEnQueue()
         x.loop_en_queue()

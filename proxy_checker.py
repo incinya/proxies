@@ -1,13 +1,13 @@
 import requests
 from utils.logger import log
-from memory.memory_queue import ExpSet
+from memory.memory_queue import RedisExpSet
 
 time_out = 8
 
 
 class ProxyChecker:
     def __init__(self):
-        self.e = ExpSet(set_name='poll', level='xici:')
+        self.exp_set = RedisExpSet(set_name='poll', level='xici:')
 
     @staticmethod
     def check_proxy(url) -> bool:
@@ -27,7 +27,7 @@ class ProxyChecker:
         return False
 
     def mem_proxy(self, url):
-        self.e.set_items(url)
+        self.exp_set.set_items(url)
 
     def check_and_mem_proxy(self, url):
         if self.check_proxy(url):

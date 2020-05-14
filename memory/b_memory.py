@@ -1,7 +1,7 @@
-from memory.memory_queue import ExpSet
+from memory.memory_queue import RedisExpSet
 
 
-class BMemSet(ExpSet):
+class BMemSet(RedisExpSet):
     def pop(self, delete: bool = True):
         """一个栈模型，弹出后删除，或放栈底"""
         res = self.r.zrange(self.key, 0, 0)[0]

@@ -2,19 +2,19 @@ import re
 import time
 import fake_useragent
 import requests
-from memory.memory_queue import ExpSet
+from memory.memory_queue import RedisExpSet
 from utils.logger import log
 
 
-class XiciProxyQueue:
+class XiciEnQueue:
     url = 'https://www.xicidaili.com/nn/{}.html'
     re_str = r'<td>(\d+.\d+.\d+.\d+)</td>.*?<td>(\d+)</td>'
     count = 0
     key = 'xici:xici_proxy_queue'
-    poll_time = 4
+    poll_heart_beat = 4
     queue_exp = 10 * 60
     queue_size = 100
-    mem = ExpSet(key)
+    mem_set = RedisExpSet(key)
 
     def get_1page_html(self, page):
         url = self.url.format(page)
@@ -33,14 +33,14 @@ class XiciProxyQueue:
 
     @staticmethod
     def parse_html(html):
-        pattern = re.compile(XiciProxyQueue.re_str, re.S)
+        pattern = re.compile(XiciEnQueue.re_str, re.S)
         result = pattern.findall(html)
         return [tup[0] + ':' + tup[1] for tup in result]
 
     def loop_en_queue(self):
-        mem = XiciProxyQueue.mem
+        mem = XiciEnQueue.mem_set
         while True:
-            X = XiciProxyQueue
+            X = XiciEnQueue
             X.count += 1
 
             res = self.get_1page_html(X.count)
@@ -51,17 +51,17 @@ class XiciProxyQueue:
                     size = len(mem.get_all())
                     log.info(
                         'queue_size over {},sleeping for poll_time {}'.format(X.queue_size,
-                                                                              X.poll_time))
-                    time.sleep(X.poll_time)
+                                                                              X.poll_heart_beat))
+                    time.sleep(X.poll_heart_beat)
                 mem.set(item)
 
     @staticmethod
     def de_queue():
-        res = XiciProxyQueue.mem.get_oldest()[0]
-        XiciProxyQueue.mem.delete(res)
+        res = XiciEnQueue.mem_set.get_oldest()[0]
+        XiciEnQueue.mem_set.delete(res)
         return res
 
 
 if __name__ == "__main__":
-    x1 = XiciProxyQueue()
+    x1 = XiciEnQueue()
     x1.loop_en_queue()

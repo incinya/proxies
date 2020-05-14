@@ -1,7 +1,7 @@
 import time
 from unittest import TestCase
 from utils.logger import log
-from memory.memory_queue import ExpSet, RedisMem
+from memory.memory_queue import RedisExpSet, RedisMem
 
 
 class MemTst(TestCase):
@@ -9,7 +9,7 @@ class MemTst(TestCase):
         ...
 
     def test_mock_zset(self):
-        e = ExpSet(set_name='alice', level='fxh:')
+        e = RedisExpSet(set_name='alice', level='fxh:')
         for i in range(1000, 0, -1):
             e.set_items({str(i)})
             log.debug('setItem'+str(i))
@@ -20,5 +20,5 @@ class MemTst(TestCase):
         r.set('alice', {'d': 'MyHonor', 'e': 'LordAlice', 'f': 'myLord'}, ex=10)
 
     def test_flush(self):
-        e = ExpSet(set_name='alice', level='fxh:')
+        e = RedisExpSet(set_name='alice', level='fxh:')
         e.flush(20)

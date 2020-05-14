@@ -26,7 +26,7 @@ def logger(path='', encoding='utf-8', level='DEBUG'):
         os.makedirs(log_path)
     logfile = os.path.join(log_path, rq + '.log')
     fh = logging.FileHandler(logfile, mode='a', encoding=encoding)
-    fh.setLevel(level)  # 输出到file的log等级的开关
+    fh.setLevel('INFO')  # 输出到file的log等级的开关
     # 第三步，定义handler的输出格式
     formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
     fh.setFormatter(formatter)

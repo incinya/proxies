@@ -45,12 +45,12 @@ class RedisMem:
         self.r.delete(key)
 
 
-class ExpSet(RedisMem):
+class RedisExpSet(RedisMem):
     def __init__(self, set_name: str, level=''):
         """
         :param set_name: set_name 
         """
-        super(ExpSet, self).__init__(level=level)
+        super(RedisExpSet, self).__init__(level=level)
         self.key = self.level + set_name
         self.exp = None
 
@@ -83,4 +83,4 @@ class ExpSet(RedisMem):
 
 if __name__ == '__main__':
     # r = RedisMem()
-    e = ExpSet(set_name='alice', level='fxh:')
+    e = RedisExpSet(set_name='alice', level='fxh:')
