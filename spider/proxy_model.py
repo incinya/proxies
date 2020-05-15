@@ -2,6 +2,8 @@ from threading import RLock
 
 from memory.redis_memory import RedisExpSet
 
+lock = RLock()
+
 
 class ProxyStack:
     key = 'prox:stack'
@@ -13,11 +15,14 @@ class ProxyStack:
 
     @staticmethod
     def de_stack():
-        lock = RLock()
         lock.acquire()
-        val = ProxyStack.mem_set.get_newest()[0]
-        ProxyStack.mem_set.delete(val)
-        lock.release()
+        try:
+            val = ProxyStack.mem_set.get_newest()
+            assert val, 'stack is empty'
+            val = val[0]
+            ProxyStack.mem_set.delete(val)
+        finally:
+            lock.release()
         return val
 
     @staticmethod
@@ -26,3 +31,7 @@ class ProxyStack:
 
     def pop(self):
         return self.de_stack()
+
+    @staticmethod
+    def get_random():
+        return ProxyStack.mem_set.get_random()

@@ -1,3 +1,4 @@
+import random
 import time
 import redis
 from memory.conf import *
@@ -83,7 +84,15 @@ class RedisExpSet(RedisMem):
     def get_size(self):
         return self.r.zcard(self.key)
 
+    def get_random(self):
+        res = self.r.zscan(self.key)[1]
+        if res:
+            return random.choice(res)[0]
+        else:
+            raise ValueError('set is empty')
+
 
 if __name__ == '__main__':
     # r = RedisMem()
-    e = RedisExpSet(set_name='alice', level='fxh:')
+    e = RedisExpSet(set_name='xici:xici_proxy_queue')
+    e.get_random()

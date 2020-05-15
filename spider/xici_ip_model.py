@@ -48,7 +48,7 @@ class XiciQueue:
             return []
 
     def new_proxy(self):
-        ip = ProxyStack().pop()
+        ip = ProxyStack().get_random()
         self.proxies = {
             'http': 'http://' + ip,
             'https': 'https://' + ip,
