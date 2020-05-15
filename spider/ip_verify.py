@@ -87,7 +87,10 @@ class ThreadSpider:
 
     def main_loop(self):
         while True:
-            while ThreadSpider.start_task - ThreadSpider.stop_task <= ThreadSpider.sem and self.stack.get_size() < self.stack.get_size():
+            bool_task_pool = ThreadSpider.start_task - ThreadSpider.stop_task <= ThreadSpider.sem
+            bool_stack_pool = self.stack.get_size() < ThreadSpider.stack_size
+
+            while bool_task_pool and bool_stack_pool:
                 Thread(target=self._main_loop).start()
                 ThreadSpider.start_task += 1
             else:
