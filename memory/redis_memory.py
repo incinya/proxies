@@ -73,7 +73,7 @@ class RedisExpSet(RedisMem):
         return self.r.zrevrange(self.key, 0, -1)
 
     def get_oldest(self):
-        return self.r.zrevrange(self.key, -1, -1)
+        return self.r.zrevrange(self.key, -1, -1)[0]
 
     def get_newest(self):
         return self.r.zrevrange(self.key, 0, 0)

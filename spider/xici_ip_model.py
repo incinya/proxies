@@ -13,7 +13,7 @@ from utils.logger import log
 class XiciQueue:
     url = 'https://www.xicidaili.com/nn/{}.html'
     re_str = r'<td>(\d+.\d+.\d+.\d+)</td>.*?<td>(\d+)</td>'
-    count = 0
+    url_page_count = 0
     key = 'xici:xici_proxy_queue'
     poll_heart_beat = 4
     queue_exp = 10 * 60
@@ -24,7 +24,7 @@ class XiciQueue:
     def __init__(self):
         self.proxies = None
 
-    def get_1page_html(self, page):
+    def _get_1page_html(self, page):
         url = self.url.format(page)
         headers = {'User-Agent': fake_useragent.UserAgent().random}
         try:
@@ -35,19 +35,19 @@ class XiciQueue:
                                proxies=self.proxies
                                )
             if not res.status_code == 200:
-                self.new_proxy()
+                self._new_proxy()
             res.encoding = 'utf-8'
             html = res.text
-            return self.parse_html(html)
+            return self._parse_html(html)
         except ProxyError as e:
             log.error(('proxy err', e))
-            self.new_proxy()
+            self._new_proxy()
             return []
         except Exception as e:
             log.error(e)
             return []
 
-    def new_proxy(self):
+    def _new_proxy(self):
         ip = ProxyStack().get_random()
         self.proxies = {
             'http': 'http://' + ip,
@@ -56,7 +56,7 @@ class XiciQueue:
         log.warning(('set new proxy', ip))
 
     @staticmethod
-    def parse_html(html):
+    def _parse_html(html):
         pattern = re.compile(XiciQueue.re_str, re.S)
         result = pattern.findall(html)
         return [tup[0] + ':' + tup[1] for tup in result]
@@ -64,8 +64,8 @@ class XiciQueue:
     def loop_en_queue(self):
         X = XiciQueue
         while True:
-            X.count += 1
-            res = self.get_1page_html(X.count)
+            X.url_page_count += 1
+            res = self._get_1page_html(X.url_page_count)
             for item in res:
                 size = len(X.mem_set.get_all())
                 while size >= X.queue_size:
@@ -81,7 +81,7 @@ class XiciQueue:
     def de_queue():
         XiciQueue.lock.acquire()
         try:
-            res = XiciQueue.mem_set.get_oldest()[0]
+            res = XiciQueue.mem_set.get_oldest()
             XiciQueue.mem_set.delete(res)
         finally:
             XiciQueue.lock.release()

@@ -1,11 +1,12 @@
 from threading import Thread
 
 from spider.ip_verify import ThreadSpider
+from spider.log_ip_model import LogQueue
 from spider.proxy_model import ProxyStack
 from spider.xici_ip_model import XiciQueue
 
-t1 = ThreadSpider(XiciQueue, ProxyStack).main_loop
-t2 = XiciQueue().loop_en_queue
+en_stack = ThreadSpider(LogQueue, ProxyStack).main_loop
+en_queue = LogQueue('log/2020-05-14.log').loop_en_queue
 
-Thread(target=t1).start()
-Thread(target=t2).start()
+Thread(target=en_stack).start()
+Thread(target=en_queue).start()
