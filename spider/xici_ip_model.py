@@ -3,7 +3,10 @@ import time
 from threading import RLock
 import fake_useragent
 import requests
+from requests.exceptions import ProxyError
+
 from memory.redis_memory import RedisExpSet
+from spider.proxy_model import ProxyStack
 from utils.logger import log
 
 
@@ -18,20 +21,39 @@ class XiciQueue:
     mem_set = RedisExpSet(key)
     lock = RLock()
 
+    def __init__(self):
+        self.proxies = None
+
     def get_1page_html(self, page):
         url = self.url.format(page)
         headers = {'User-Agent': fake_useragent.UserAgent().random}
         try:
+            log.info(('start get 1 page', url))
             res = requests.get(url,
                                headers=headers,
-                               timeout=5
+                               timeout=5,
+                               proxies=self.proxies
                                )
+            if not res.status_code == 200:
+                self.new_proxy()
+            res.encoding = 'utf-8'
+            html = res.text
+            return self.parse_html(html)
+        except ProxyError as e:
+            log.error(('proxy err', e))
+            self.new_proxy()
+            return []
         except Exception as e:
             log.error(e)
             return []
-        res.encoding = 'utf-8'
-        html = res.text
-        return self.parse_html(html)
+
+    def new_proxy(self):
+        ip = ProxyStack().pop()
+        self.proxies = {
+            'http': 'http://' + ip,
+            'https': 'https://' + ip,
+        }
+        log.warning(('set new proxy', ip))
 
     @staticmethod
     def parse_html(html):
@@ -45,7 +67,7 @@ class XiciQueue:
             X.count += 1
             res = self.get_1page_html(X.count)
             for item in res:
-                size = len( X.mem_set.get_all())
+                size = len(X.mem_set.get_all())
                 while size >= X.queue_size:
                     X.mem_set.flush(X.queue_exp)
                     size = len(X.mem_set.get_all())
