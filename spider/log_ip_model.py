@@ -2,7 +2,6 @@ import os
 import re
 import time
 from threading import RLock
-
 from memory.redis_memory import RedisExpSet
 from utils.logger import log
 

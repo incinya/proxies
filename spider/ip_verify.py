@@ -47,7 +47,7 @@ class AsyncSpider:
 class ThreadSpider:
     time_out = 8
     poll_time = 10
-    sem = 10
+    sem = 5
     start_task = 0
     stop_task = 0
     stack_size = 40

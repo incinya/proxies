@@ -29,8 +29,11 @@ class ProxyStack:
     def get_size():
         return ProxyStack.mem_set.get_size()
 
-    def pop(self):
-        return self.de_stack()
+    def pop(self, delete=False):
+        if delete is True:
+            return self.de_stack()
+        else:
+            return self.get_random()
 
     @staticmethod
     def get_random():
